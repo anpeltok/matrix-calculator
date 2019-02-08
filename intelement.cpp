@@ -16,7 +16,6 @@ IntElement::IntElement() : IntElement{0}{
   * \param v Int value to be stored in IntElement class
   */
 IntElement::IntElement(int v) : val{v}{
-
 }
 
 /**
@@ -39,12 +38,30 @@ void IntElement::setVal(int v){
   * \brief Creates a clone of self and returns pointer to it
   * \return Pointer to clone of self
   */
-std::unique_ptr<IntElement> IntElement::clone() const{
+Element* IntElement::clone() const{
+  
+  IntElement* ptr{new IntElement{val}};
 
-  std::unique_ptr<IntElement> copy;
-  copy = std::unique_ptr<IntElement>{new IntElement{val}};
+  return ptr;
+}
 
-  return copy;
+/**
+  * \brief Makes string of IntElement's val
+  * \return String containing IntElement's val
+  */
+std::string IntElement::toString() const{
+
+  std::stringstream ss;
+  ss << val;
+  return ss.str();}
+
+/**
+  * \brief Returns int value of element
+  * \param v Map for char variables and int values
+  * \return Int value of element
+  */
+int IntElement::evaluate(const Valuation& v) const{
+  return val;
 }
 
 /**
@@ -92,19 +109,6 @@ bool IntElement::operator==(const IntElement& i) const{
 }
 
 /**
-  * \brief Checks if parameter IntElement is different from self
-  * \param i IntElement to be compared to
-  * \return True if vals in parameter and self are not same, false if they are
-  */
-bool IntElement::operator!=(const IntElement& i) const{
-
-  if(val != i.val)
-    return true;
-  else
-    return false;
-}
-
-/**
   * \brief Operator overload for operator + for IntElements
   * \param i1 First IntElement
   * \param i2 Second IntElement
@@ -138,16 +142,4 @@ IntElement operator*(const IntElement& i1, const IntElement& i2){
   IntElement result{i1};
   result *= i2;
   return result;
-}
-
-/**
-  * \brief Operator overload for operator << for IntElements
-  * \param os Output stream
-  * \param ii IntElement
-  * \return Output stream with encapsulated int value
-  */
-std::ostream& operator<<(std::ostream& os, const IntElement& i){
-
-  return os << i.getVal();
-
 }

@@ -1,21 +1,30 @@
 /**
-  * \file squarematrix.cpp
-  * \brief SquareMatrix class
+  * \file concretematrix.cpp
+  * \brief ConcreteSquareMatrix class
   */
-#include "squarematrix.h"
+#include "concretematrix.h"
 
 /**
-  * \brief Default constructor for SquareMatrix class, default string "[[0,0][0,0]]"
+  * \brief Default constructor for ConcreteSquareMatrix class, sets n = 0 for empty matrix.
   */
-SquareMatrix::SquareMatrix(){
-  n = 0;
+ConcreteSquareMatrix::ConcreteSquareMatrix() : ConcreteSquareMatrix{0}{
 }
 
 /**
-  * \brief Constructor for SquareMatrix class. Checks with isSquareMatrix that parameter is correct, then construcs elements using matrixIntoVector
+  * \brief Constructor for ConcreteSquareMatrix of size n filled with zeroes.
+  * \param n Size of created ConcreteSquareMatrix
+  */
+ConcreteSquareMatrix::ConcreteSquareMatrix(const unsigned int length){
+  elements = emptyMatrixIntoVector(length);
+  n = length;
+}
+
+/**
+  * \brief Constructor for ConcreteSquareMatrix class. Checks with isSquareMatrix that parameter is correct,
+           then constructs elements using matrixIntoVector
   * \param s String with square matrix in [[i11,...,i1n]...[in2,...,inn]] format
   */
-SquareMatrix::SquareMatrix(const std::string& str_m){
+ConcreteSquareMatrix::ConcreteSquareMatrix(const std::string& str_m){
 
   if(!isSquareMatrix(str_m))
     throw std::invalid_argument{"Not square matrix adhering to predetermined form."};
@@ -25,40 +34,51 @@ SquareMatrix::SquareMatrix(const std::string& str_m){
 }
 
 /**
-  * \brief Copy constructor for SquareMatrix class
-  * \param m SquareMatrix to be copied
+  * \brief Constructor for ConcreteSquareMatrix class. If SquareMatrix doesn't adhere to proper form, throws exception.
+  * \param v Vector of vectors of IntElements, contains a SquareMatrix 
   */
-SquareMatrix::SquareMatrix(const SquareMatrix& m){
+ConcreteSquareMatrix::ConcreteSquareMatrix(std::vector<std::vector<std::unique_ptr<IntElement>>> v){
+  elements = std::move(v);
+  n = elements.size();
+  if(!isSquareMatrix(toString())){
+    throw std::invalid_argument{"Not square matrix adhering to predetermined form."};
+  }
+}
+
+/**
+  * \brief Copy constructor for ConcreteSquareMatrix class
+  * \param m ConcreteSquareMatrix to be copied
+  */
+ConcreteSquareMatrix::ConcreteSquareMatrix(const ConcreteSquareMatrix& m) : n{m.n}{
   
   int i = 0;
+
   for(auto& rows : m.elements){
     elements.push_back(std::vector<std::unique_ptr<IntElement>>());
     for(auto& el : rows){
-      elements[i].push_back((*el).clone());
+      elements[i].push_back(std::unique_ptr<IntElement>{dynamic_cast<IntElement*>(el->clone())});
     }
     i++;
   }
 
-  n = m.n;
-
 }
 
 /**
-  * \brief Move copy constructor for SquareMatrix class
-  * \param m SquareMatrix to be moved and copied
+  * \brief Move copy constructor for ConcreteSquareMatrix class
+  * \param m ConcreteSquareMatrix to be moved and copied
   */
-SquareMatrix::SquareMatrix(SquareMatrix&& m) : n{std::move(m.n)}, elements{std::move(m.elements)}{
+ConcreteSquareMatrix::ConcreteSquareMatrix(ConcreteSquareMatrix&& m) : n{std::move(m.n)}, elements{std::move(m.elements)}{
   
 }
 
 /**
-  * \brief Operator overload for operator = for SquareMatrix class
-  * \param m SquareMatrix to be copied
-  * \return SquareMatrix with copied values
+  * \brief Operator overload for operator = for ConcreteSquareMatrix class
+  * \param m ConcreteSquareMatrix to be copied
+  * \return ConcreteSquareMatrix with copied values
   */
-SquareMatrix& SquareMatrix::operator=(const SquareMatrix& m){
+ConcreteSquareMatrix& ConcreteSquareMatrix::operator=(const ConcreteSquareMatrix& m){
 
-  SquareMatrix copy{m};
+  ConcreteSquareMatrix copy{m};
 
   std::swap(elements, copy.elements);
   std::swap(n, copy.n);
@@ -68,11 +88,11 @@ SquareMatrix& SquareMatrix::operator=(const SquareMatrix& m){
 }
 
 /**
-  * \brief Move copy operator for SquareMatrix class
-  * \param m SquareMatrix to be moved and copied
-  * \return SquareMatrix with copied values
+  * \brief Move copy operator for ConcreteSquareMatrix class
+  * \param m ConcreteSquareMatrix to be moved and copied
+  * \return ConcreteSquareMatrix with copied values
   */
-SquareMatrix& SquareMatrix::operator=(SquareMatrix&& m){
+ConcreteSquareMatrix& ConcreteSquareMatrix::operator=(ConcreteSquareMatrix&& m){
 
   if(elements == m.elements){
     return *this;
@@ -87,16 +107,16 @@ SquareMatrix& SquareMatrix::operator=(SquareMatrix&& m){
 
 /**
   * \brief Returns transpose of self
-  * \return SquareMatrix that is transpose of self
+  * \return ConcreteSquareMatrix that is transpose of self
   */
-SquareMatrix SquareMatrix::transpose() const{
+ConcreteSquareMatrix ConcreteSquareMatrix::transpose() const{
 
-  SquareMatrix transpose{};
+  ConcreteSquareMatrix transpose{};
 
   for(int i = 0; i < n; i++){
     transpose.elements.push_back(std::vector<std::unique_ptr<IntElement>>());
     for(int j = 0; j < n; j++){
-      transpose.elements[i].push_back((*elements[j][i]).clone());
+      transpose.elements[i].push_back(std::unique_ptr<IntElement>{dynamic_cast<IntElement*>(elements[j][i]->clone())});
     }
   }
 
@@ -107,12 +127,12 @@ SquareMatrix SquareMatrix::transpose() const{
 
 /**
   * \brief Operator overload for operator +=
-  * \param m Reference to SquareMatrix object to be added to self
+  * \param m Reference to ConcreteSquareMatrix object to be added to self
   * \return Self
   */
-SquareMatrix& SquareMatrix::operator+=(const SquareMatrix& m){
+ConcreteSquareMatrix& ConcreteSquareMatrix::operator+=(const ConcreteSquareMatrix& m){
 
-  SquareMatrix copy = m;
+  ConcreteSquareMatrix copy = m;
 
   checkOperands(copy);
 
@@ -133,12 +153,12 @@ SquareMatrix& SquareMatrix::operator+=(const SquareMatrix& m){
 
 /**
   * \brief Operator overload for operator -=
-  * \param m Reference to SquareMatrix object to be subtracted from self
+  * \param m Reference to ConcreteSquareMatrix object to be subtracted from self
   * \return Self
   */
-SquareMatrix& SquareMatrix::operator-=(const SquareMatrix& m){
+ConcreteSquareMatrix& ConcreteSquareMatrix::operator-=(const ConcreteSquareMatrix& m){
 
-  SquareMatrix copy = m;
+  ConcreteSquareMatrix copy = m;
 
   checkOperands(copy);
 
@@ -159,18 +179,18 @@ SquareMatrix& SquareMatrix::operator-=(const SquareMatrix& m){
 
 /**
   * \brief Operator overload for operator *=
-  * \param m Reference to SquareMatrix object for self to be multiplied by
+  * \param m Reference to ConcreteSquareMatrix object for self to be multiplied by
   * \return Self
   */
-SquareMatrix& SquareMatrix::operator*=(const SquareMatrix& m){
+ConcreteSquareMatrix& ConcreteSquareMatrix::operator*=(const ConcreteSquareMatrix& m){
 
-  SquareMatrix transpose = m;
+  ConcreteSquareMatrix transpose = m;
   checkOperands(transpose);
 
   transpose = transpose.transpose();
   
   // Initializing result as square matrix of correct size holding zeroes
-  SquareMatrix result{};
+  ConcreteSquareMatrix result{};
   result.elements = emptyMatrixIntoVector(n);
   result.n = n;
 
@@ -189,17 +209,17 @@ SquareMatrix& SquareMatrix::operator*=(const SquareMatrix& m){
 
 /**
   * \brief Checks, if two matrices are identical
-  * \param m SquareMatrix
+  * \param m ConcreteSquareMatrix
   * \return True if matrices are identical, false if not
   */
-bool SquareMatrix::operator==(const SquareMatrix& m) const{
+bool ConcreteSquareMatrix::operator==(const ConcreteSquareMatrix& m) const{
   
   if(n != m.n)
     return false;
 
   for(int i= 0; i < n; i++){
     for(int j = 0; j < n; j++){
-      if(*elements[i][j] != *m.elements[i][j])
+      if(!(*elements[i][j] == *m.elements[i][j]))
         return false;
     }
   }
@@ -210,7 +230,7 @@ bool SquareMatrix::operator==(const SquareMatrix& m) const{
   * \brief Prints toString() to output stream
   * \param os Output stream
   */
-void SquareMatrix::print(std::ostream& os) const{
+void ConcreteSquareMatrix::print(std::ostream& os) const{
   os << toString();
 }
 
@@ -218,7 +238,7 @@ void SquareMatrix::print(std::ostream& os) const{
   * \brief Returns matrix in predetermined string format
   * \return Matrix in predetermined string format
   */
-std::string SquareMatrix::toString() const{
+std::string ConcreteSquareMatrix::toString() const{
   
   std::stringstream ss;
   bool first = true;
@@ -247,9 +267,9 @@ std::string SquareMatrix::toString() const{
   * \brief Checks, whether two operands are empty and/or same size. If both are empty, throws exception. 
            If one is empty, creates empty matrix the same size as the other, but filled with zeroes. 
            If non-empty matrices are not the same size, throws exception.
-  * \param m SquareMatrix to be compared to self
+  * \param m ConcreteSquareMatrix to be compared to self
   */
-void SquareMatrix::checkOperands(SquareMatrix& m){
+void ConcreteSquareMatrix::checkOperands(ConcreteSquareMatrix& m){
 
   // If both matrices are empty, throw exception
   if(n == 0 && m.n == 0){
@@ -275,13 +295,13 @@ void SquareMatrix::checkOperands(SquareMatrix& m){
 
 /**
   * \brief Operator overload for operator +
-  * \param m1 Reference to first SquareMatrix
-  * \param m2 Reference to second SquareMatrix
+  * \param m1 Reference to first ConcreteSquareMatrix
+  * \param m2 Reference to second ConcreteSquareMatrix
   * \return Matrix with parameter matrices added together
   */
-SquareMatrix operator+(const SquareMatrix& m1, const SquareMatrix& m2){
+ConcreteSquareMatrix operator+(const ConcreteSquareMatrix& m1, const ConcreteSquareMatrix& m2){
 
-  SquareMatrix result = m1;
+  ConcreteSquareMatrix result = m1;
   result += m2;
 
   return result;
@@ -289,13 +309,13 @@ SquareMatrix operator+(const SquareMatrix& m1, const SquareMatrix& m2){
 
 /**
   * \brief Operator overload for operator -
-  * \param m1 Reference to first SquareMatrix
-  * \param m2 Reference to second SquareMatrix
+  * \param m1 Reference to first ConcreteSquareMatrix
+  * \param m2 Reference to second ConcreteSquareMatrix
   * \return Matrix with second parameter matrix detracted from first
   */
-SquareMatrix operator-(const SquareMatrix& m1, const SquareMatrix& m2){
+ConcreteSquareMatrix operator-(const ConcreteSquareMatrix& m1, const ConcreteSquareMatrix& m2){
 
-  SquareMatrix result{m1};
+  ConcreteSquareMatrix result{m1};
   result -= m2;
 
   return result;
@@ -303,13 +323,13 @@ SquareMatrix operator-(const SquareMatrix& m1, const SquareMatrix& m2){
 
 /**
   * \brief Operator overload for operator *
-  * \param m1 Reference to first SquareMatrix
-  * \param m2 Reference to second SquareMatrix
+  * \param m1 Reference to first ConcreteSquareMatrix
+  * \param m2 Reference to second ConcreteSquareMatrix
   * \return Matrix with parameter matrices multiplied together
   */
-SquareMatrix operator*(const SquareMatrix& m1, const SquareMatrix& m2){
+ConcreteSquareMatrix operator*(const ConcreteSquareMatrix& m1, const ConcreteSquareMatrix& m2){
   
-  SquareMatrix result{m1};
+  ConcreteSquareMatrix result{m1};
   result *= m2;
 
   return result;
@@ -318,10 +338,10 @@ SquareMatrix operator*(const SquareMatrix& m1, const SquareMatrix& m2){
 /**
   * \brief Operator overload for operator <<
   * \param os Output stream
-  * \param m SquareMatrix to be printed to output stream
+  * \param m ConcreteSquareMatrix to be printed to output stream
   * \return Output stream with contents of square matrix printed
   */
-std::ostream& operator<<(std::ostream& os, const SquareMatrix& m){
+std::ostream& operator<<(std::ostream& os, const ConcreteSquareMatrix& m){
   
   m.print(os);
   return os;
