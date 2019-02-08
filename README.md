@@ -2,7 +2,7 @@
 Matrix calculator for Advanced Object Oriented Programming course in C++.
 
 Currently work in progress, includes calculator functionality for square matrix inputs of strings in "[[n11,...,n1n]...[nn1,...,nnn]]" format.
-Functionality is tested with Catch tests in squarematrix_tests.cpp and intelement_tests.cpp.
+Functionality is tested with Catch tests in tests.cpp.
 
 Lastly edited to for Element interface, char variables and symbolic square matrices.
 
