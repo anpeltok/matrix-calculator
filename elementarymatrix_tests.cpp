@@ -1,268 +1,9 @@
 /**
-  * \file tests.cpp
-  * \brief Catch tests for program
+  * \file elementarymatrix_tests.cpp
+  * \brief Catch tests for ElementarySquareMatrix template class
   */
-#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-#include "element.h"
-#include "concretematrix.h"
-#include "symbolicmatrix.h"
-#include "varelement.h"
-#include "intelement.h"
-
-/**
-  * \brief Tests for IntEelement constructors
-  */
-TEST_CASE("IntElement constructor tests", "[intelement]"){
-
-  IntElement zero{};
-  IntElement one{15};
-
-  CHECK(zero.getVal() == 0);
-  CHECK(one.getVal() == 15);
-
-}
-
-/**
-  * \brief Tests for IntElement setter and getter
-  */
-TEST_CASE("IntElement setVal and getVal tests", "[intelement]"){
-
-  IntElement zero{};
-  zero.setVal(15);
-
-  CHECK(zero.getVal() == 15);
-}
-
-/**
-  * \brief Tests for IntElement clone method
-  */
-TEST_CASE("IntElement clone tests", "[intelement]"){
-
-  IntElement zero{};
-  Element* ptr = zero.clone();
-  CHECK(ptr->toString() == zero.toString());
-
-  delete ptr;
-
-}
-
-/**
-  * \brief Tests for IntElement toString method
-  */
-TEST_CASE("IntElement toString tests", "[intelement]"){
-
-  IntElement one{15};
-  CHECK(one.toString() == "15");
-}
-
-/**
-  * \brief Tests for IntElement evaluation method
-  */
-TEST_CASE("IntElement evaluate tests", "[intelement]"){
-  
-  IntElement one{15};
-  std::map<char,int> map{};
-  map['x'] = 15;
-
-  CHECK(one.evaluate(map) == 15);
-}
-
-/**
-  * \brief Tests for IntElement arithmetic operator overloads
-  */
-TEST_CASE("IntElement arithmetic operator overload tests", "[intelement]"){
-
-  IntElement one{1};
-  IntElement two{2};
-  IntElement result{};
-
-  // 1 + 2
-  result = one + two;
-  CHECK(result.getVal() == 3);
-
-  // 2 - 1
-  result = two - one;
-  CHECK(result.getVal() == 1);
-
-  // 2 * 2
-  result = two * two;
-  CHECK(result.getVal() == 4);
-
-  // 4 + 2
-  result += two;
-  CHECK(result.getVal() == 6);
-
-  // 6 - 1
-  result -= one;
-  CHECK(result.getVal() == 5);
-
-  // 5 * 2
-  result *= two;
-  CHECK(result.getVal() == 10);
-}
-
-/**
-  * \brief Tests for IntElement comparison operator overload
-  */
-TEST_CASE("IntElement comparison operator overload tests", "[intelement]"){
-
-  IntElement empty1{};
-  IntElement empty2{};
-
-  IntElement one{1};
-  IntElement two{2};
-
-  CHECK(empty1 == empty2);
-  CHECK(one == one);
-  CHECK(two == two);
-  CHECK_FALSE(one == two);
-}
-
-
-
-
-
-
-/**
-  * \brief Tests for VariableElement constructors
-  */
-TEST_CASE("VariableElement constructor tests", "[varelement]"){
-
-  CHECK_NOTHROW(VariableElement{});
-  CHECK_NOTHROW(VariableElement{'a'});
-  CHECK_NOTHROW(VariableElement{'A'});
-  CHECK_NOTHROW(VariableElement{'z'});
-  CHECK_NOTHROW(VariableElement{'Z'});
-  CHECK_NOTHROW(VariableElement{int('y')});
-
-  CHECK_THROWS(VariableElement{'['});
-  CHECK_THROWS(VariableElement{'&'});
-  CHECK_THROWS(VariableElement{char(15)});
-  CHECK_THROWS(VariableElement{'1'});
-  CHECK_THROWS(VariableElement{'0'});
-
-}
-
-/**
-  * \brief Tests for VariableElement getter and setter
-  */
-TEST_CASE("VariableElement getVal and setVal tests", "[varelement]"){
-
-  VariableElement empty{};
-  VariableElement smallOne{'a'};
-  VariableElement largeOne{'A'};
-
-  CHECK(smallOne.getVal() == 'a');
-  CHECK(largeOne.getVal() == 'A');
-
-  CHECK_NOTHROW(empty.setVal('x'));
-  CHECK(empty.getVal() == 'x');
-  CHECK_NOTHROW(empty.setVal('Y'));
-  CHECK(empty.getVal() == 'Y');
-
-  CHECK_THROWS(empty.setVal('.'));
-  CHECK_THROWS(empty.setVal(','));
-  CHECK_THROWS(empty.setVal('('));
-
-}
-
-/**
-  * \brief Tests for VariableElement clone method
-  */
-TEST_CASE("VariableElement clone tests", "[varelement]"){
-
-  VariableElement zero{'a'};
-  Element * ptr = zero.clone();
-
-  CHECK(ptr->toString() == zero.toString());
-
-  delete ptr;
-
-}
-
-/**
-  * \brief Tests for VariableElement toString method
-  */
-TEST_CASE("VariableElement toString tests", "[varelement]"){
-
-  VariableElement smallOne{'a'};
-  VariableElement smallTwo{'y'};
-  VariableElement largeOne{'A'};
-  VariableElement largeTwo{'Y'};
-
-  CHECK(smallOne.toString() == "a");
-  CHECK(smallTwo.toString() == "y");
-  CHECK(largeOne.toString() == "A");
-  CHECK(largeTwo.toString() == "Y");
-}
-
-/**
-  * \brief Tests for VariableElement evaluation method
-  */
-TEST_CASE("VariableElement evaluate tests", "[varelement]"){
-
-  std::map<char,int> map{};
-  
-  map['x'] = 1;
-  map['X'] = 2;
-  map['y'] = 3;
-  map['Y'] = 4;
-  map['z'] = 5;
-
-  VariableElement one{'x'};
-  VariableElement two{'X'};
-  VariableElement three{'y'};
-  VariableElement four{'Y'};
-  VariableElement five{'z'};
-  VariableElement six{'Z'};
-
-  CHECK(one.evaluate(map) == 1);
-  CHECK(two.evaluate(map) == 2);
-  CHECK(three.evaluate(map) == 3);
-  CHECK(four.evaluate(map) == 4);
-  CHECK(five.evaluate(map) == 5);
-  CHECK_THROWS(six.evaluate(map));
-}
-
-/**
-  * \brief Tests for VariableElement comparison operator overload
-  */
-TEST_CASE("VariableElement comparison operator overload tests", "[varelement]"){
-
-  VariableElement empty{};
-  VariableElement smallOne{'a'};
-  VariableElement largeOne{'A'};
-
-  CHECK(empty == empty);
-  CHECK(smallOne == smallOne);
-
-  CHECK_FALSE(smallOne == largeOne);
-  CHECK_FALSE(empty == smallOne);
-}
-
-
-
-
-
-/**
-  * \brief Tests for Element print operator overload
-  */
-TEST_CASE("Element operator<< overload tests", "[element]"){
-
-  IntElement val{15};
-  VariableElement var{'x'};
-
-  std::stringstream ss;
-  ss << var << val;
-
-  CHECK(ss.str() == "x15");
-}
-
-
-
-
-
+#include "elementarymatrix.h"
 
 /**
   * \brief Tests for ConcreteSquareMatrix constructors
@@ -380,9 +121,6 @@ TEST_CASE("ConcreteSquareMatrix transpose tests", "[concretematrix]"){
 TEST_CASE("ConcreteSquareMatrix arithmetic operator overload tests", "[concretematrix]"){
 
   // Testing for incorrect inputs
-  CHECK_THROWS(ConcreteSquareMatrix{} + ConcreteSquareMatrix{});
-  CHECK_THROWS(ConcreteSquareMatrix{} - ConcreteSquareMatrix{});
-  CHECK_THROWS(ConcreteSquareMatrix{} * ConcreteSquareMatrix{});
   CHECK_THROWS(ConcreteSquareMatrix{"[[1,2][3,4]]"} + ConcreteSquareMatrix{"[[1,2,3][4,5,6][7,8,9]]"});
   CHECK_THROWS(ConcreteSquareMatrix{"[[1,2][3,4]]"} - ConcreteSquareMatrix{"[[1,2,3][4,5,6][7,8,9]]"});
   CHECK_THROWS(ConcreteSquareMatrix{"[[1,2][3,4]]"} * ConcreteSquareMatrix{"[[1,2,3][4,5,6][7,8,9]]"});
@@ -458,16 +196,10 @@ TEST_CASE("ConcreteSquareMatrix checkOperands tests", "[concretematrix]"){
   ConcreteSquareMatrix emptyTwo{};
   ConcreteSquareMatrix zero{3};
   ConcreteSquareMatrix one{"[[1,2][3,4]]"};
-  ConcreteSquareMatrix two{"[[1,2,3][4,5,6][7,8,9]]"};
 
-  CHECK_THROWS(emptyOne.checkOperands(emptyOne));
   CHECK_THROWS(zero.checkOperands(one));
+  CHECK_NOTHROW(emptyOne.checkOperands(emptyTwo));
   
-  emptyOne.checkOperands(one);
-  two.checkOperands(emptyTwo);
-
-  CHECK(emptyOne.toString() == "[[0,0][0,0]]");
-  CHECK(emptyTwo.toString() == "[[0,0,0][0,0,0][0,0,0]]");
 }
 
 /**
@@ -477,11 +209,15 @@ TEST_CASE("ConcreteSquareMatrix matrixIntoVector and emptyMatrixIntoVector tests
 
   std::vector<std::vector<std::unique_ptr<IntElement>>> v;
 
-  v = matrixIntoVector("[[1,2][3,4]]");
-  CHECK(ConcreteSquareMatrix{std::move(v)}.toString() == "[[1,2][3,4]]");
+  ConcreteSquareMatrix vector{};
+  v = vector.matrixIntoVector("[[1,2][3,4]]");
+  ConcreteSquareMatrix matrix{std::move(v)};
+  CHECK(matrix.toString() == "[[1,2][3,4]]");
 
-  v = emptyMatrixIntoVector(2);
-  CHECK(ConcreteSquareMatrix{std::move(v)}.toString() == "[[0,0][0,0]]");
+  ConcreteSquareMatrix emptyVector{};
+  v = emptyVector.emptyMatrixIntoVector(2);
+  ConcreteSquareMatrix emptyMatrix{std::move(v)};
+  CHECK(emptyMatrix.toString() == "[[0,0][0,0]]");
 }
 
 
@@ -562,7 +298,7 @@ TEST_CASE("SymbolicSquareMatrix copy and move operator overload tests", "[symbol
   CHECK(two.toString() == one.toString());
 
   // Checking zero is empty after move
-  CHECK(zero.toString() == "[[x]]");
+  CHECK(zero.toString() == "[]");
 
   two = std::move(two);
   CHECK(two.toString() == two.toString());
@@ -581,6 +317,34 @@ TEST_CASE("SymbolicSquareMatrix transpose tests", "[symbolicmatrix]"){
 
   CHECK(transpose.toString() == "[[a,b][A,B]]");  
 
+}
+
+/**
+  * \brief Tests for SymbolicSquareMatrix arithmetic operator overloads
+  */
+TEST_CASE("SymbolicSquareMatrix arithmetic operator overload tests", "[symbolicmatrix]"){
+
+  SymbolicSquareMatrix one{"[[x,y][a,b]]"};
+  SymbolicSquareMatrix two{"[[1,2][3,4]]"};
+  SymbolicSquareMatrix three("[[1,2,3][x,y,a][1,2,3]]");
+
+  Valuation map{};
+  map['x'] = 1;
+  map['y'] = 2;
+  map['a'] = 3;
+  map['b'] = 4;
+
+  SymbolicSquareMatrix result = one + two;
+  CHECK(result.evaluate(map).toString() == "[[2,4][6,8]]");
+
+  result = one - two;
+  CHECK(result.evaluate(map).toString() == "[[0,0][0,0]]");
+
+  result = one * two;
+  CHECK(result.evaluate(map).toString() == "[[7,10][15,22]]");
+
+  result = three * three;
+  CHECK(result.evaluate(map).toString() == "[[6,12,18][6,12,18][6,12,18]]");
 }
 
 /**
@@ -619,7 +383,7 @@ TEST_CASE("SymbolicSquareMatrix print, toString and operator<< overload tests", 
   */
 TEST_CASE("SymbolicSquareMatrix evaluate tests", "[symbolicmatrix]"){
 
-  std::map<char,int> map{};
+  Valuation map{};
   map['x'] = 1;
   map['X'] = 2;
   map['y'] = 3;
@@ -634,12 +398,34 @@ TEST_CASE("SymbolicSquareMatrix evaluate tests", "[symbolicmatrix]"){
 }
 
 /**
+  * \brief Tests for SymbolicSquareMatrix checkOperands function
+  */
+TEST_CASE("SymbolicSquareMatrix checkOperands tests", "[symbolicmatrix]"){
+
+  SymbolicSquareMatrix emptyOne{};
+  SymbolicSquareMatrix emptyTwo{};
+  SymbolicSquareMatrix one{"[[x,y][a,b]]"};
+  SymbolicSquareMatrix two{"[[1,2,3][4,5,6][7,8,9]]"};
+
+  CHECK_THROWS(one.checkOperands(two));
+  CHECK_NOTHROW(emptyOne.checkOperands(emptyTwo));
+  
+}
+
+/**
   * \brief Tests for SymbolicSquareMatrix matrix checker and creation functions
   */
-TEST_CASE("SymbolicSquareMatrix matrix creation and checking tests", "[symbolicmatrix]"){
+TEST_CASE("SymbolicSquareMatrix matrixIntoVector and emptyMatrixIntoVector tests", "[symbolicmatrix]"){
 
-  SymbolicSquareMatrix one{"[[11,12,13][14,15,16][17,18,19]]"};
-  CHECK(one.toString() == "[[11,12,13][14,15,16][17,18,19]]");
+  std::vector<std::vector<std::unique_ptr<Element>>> v;
 
+  SymbolicSquareMatrix matrix{};
+  v = matrix.matrixIntoVector("[[1,2][3,4]]");
+  SymbolicSquareMatrix vector{std::move(v)};
+  CHECK(vector.toString() == "[[1,2][3,4]]");
 
+  SymbolicSquareMatrix emptyMatrix{};
+  v = emptyMatrix.emptyMatrixIntoVector(2);
+  SymbolicSquareMatrix emptyVector{std::move(v)};
+  CHECK(emptyVector.toString() == "[[x,x][x,x]]");
 }
