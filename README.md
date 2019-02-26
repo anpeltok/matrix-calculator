@@ -12,10 +12,15 @@ Includes calculator functionality for nxn size square matrix inputs of strings i
 Inputs:
 
 Add matrix:             Input matrix in format "[[11,1n][n1,nn]" to add square matrix into stack.
-Operations:             Input +, - or * to perform corresponding operation on two topmost matrices in stack (matrices must be same size).
+
+Operations:             Input +, - or * to perform corresponding operation on two topmost matrices in stack (matrices must be                         same size).
+
 Map value:              Input "variable=value" to map values to char variables, ex. "x=7".
+
 Print stored values:    Input "values" to print stored values.
+
 Print result:           Input = to print evaluation of topmost matrix.
+
 Quit:                   Input "quit" to quit.
 
 
